@@ -1,0 +1,43 @@
+kubeConfigDir: /tmp/kubernetes
+CaSign:
+  - Name: ca
+    CertName: ca.crt
+    KeyName: ca.key
+    Sign:
+      - Name: apiserver
+        CertName: apiserver.crt
+        KeyName: apiserver.key
+      - Name: apiserver-kubelet-client
+        CertName: apiserver-kubelet-client.crt
+        KeyName: apiserver-kubelet-client.key
+
+    KubeConfigs:
+      - admin.conf
+#      - kubelet.conf
+      - controller-manager.conf
+      - scheduler.conf
+
+  - Name: front-proxy-ca
+    CertName: front-proxy-ca.crt
+    KeyName: front-proxy-ca.key
+    Sign:
+      - Name: front-proxy-client
+        CertName: front-proxy-client.crt
+        KeyName: front-proxy-client.key
+
+  - Name: etcd/ca
+    CertName: etcd/ca.crt
+    KeyName: etcd/ca.key
+    Sign:
+      - Name: apiserver-etcd-client
+        CertName: apiserver-etcd-client.crt
+        KeyName: apiserver-etcd-client.key
+      - Name: etcd/healthcheck-client
+        CertName: etcd/healthcheck-client.crt
+        KeyName: etcd/healthcheck-client.key
+      - Name: etcd/peer
+        CertName: etcd/peer.crt
+        KeyName: etcd/peer.key
+      - Name: etcd/server
+        CertName: etcd/server.crt
+        KeyName: etcd/server.key
