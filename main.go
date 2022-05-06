@@ -159,10 +159,10 @@ func VerifyCertificate(caCert, pemCert *x509.Certificate) error {
 
 	roots := x509.NewCertPool()
 	roots.AddCert(caCert)
-
 	opts := x509.VerifyOptions{
-		Roots:     roots,
-		KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+		Roots:       roots,
+		KeyUsages:   []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+		CurrentTime: pemCert.NotAfter.Add(-time.Second),
 		//KeyUsages: pemCert.ExtKeyUsage,
 	}
 	if _, err := pemCert.Verify(opts); err != nil {
