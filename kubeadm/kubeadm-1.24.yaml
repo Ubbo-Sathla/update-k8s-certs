@@ -12,7 +12,7 @@ localAPIEndpoint:
 #  advertiseAddress: 1.2.3.4
   bindPort: 6443
 nodeRegistration:
-  criSocket: unix:///var/run/containerd/containerd.sock
+  criSocket: unix:///var/run/crio/crio.sock
   imagePullPolicy: IfNotPresent
   name: node
   taints: null
