@@ -1,7 +1,12 @@
 # 更新K8S 证书
 
+![build](https://github.com/Ubbo-Sathla/update-k8s-certs/actions/workflows/main.yml/badge.svg)
+![release](https://github.com/Ubbo-Sathla/update-k8s-certs/actions/workflows/release.yml/badge.svg)
+
+
 **操作前请备份好证书，使用该脚本发生任何问题，作者不承担任何责任**
 
+***⚠️目前该脚本只读当前目录config.yaml文件***
 
 > 该脚本适用于kubeadm, 以及自签名ca
 

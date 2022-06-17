@@ -72,7 +72,10 @@ func main() {
 	newkubeConfigDir := fmt.Sprintf("%s_%s", conf.KubeConfigDir, time.Now().Format("20060102150405"))
 	pkiDir := fmt.Sprintf("%s/pki", conf.KubeConfigDir)
 	newPkiDir := fmt.Sprintf("%s/pki", newkubeConfigDir)
-	os.MkdirAll(newPkiDir, 0755)
+	err := os.MkdirAll(newPkiDir, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
 	for _, caSign := range conf.CaSign {
 		caCert, caKey, err := TryLoadCertAndKeyFromDisk(pkiDir, caSign.Name)
 		if err != nil {
@@ -88,7 +91,10 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			WriteCertAndKey(newPkiDir, sign.Name, newPemCert, newPemKey)
+			err = WriteCertAndKey(newPkiDir, sign.Name, newPemCert, newPemKey)
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		//  kubeConfig
@@ -159,13 +165,19 @@ func VerifyCertificate(caCert, pemCert *x509.Certificate) error {
 
 	roots := x509.NewCertPool()
 	roots.AddCert(caCert)
+	currentTime := pemCert.NotBefore
+	if pemCert.NotBefore.Before(caCert.NotBefore) {
+		currentTime = caCert.NotBefore
+	}
 	opts := x509.VerifyOptions{
 		Roots:       roots,
 		KeyUsages:   []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
-		CurrentTime: pemCert.NotBefore.Add(+time.Second),
+		CurrentTime: currentTime.Add(+time.Second),
 		//KeyUsages: pemCert.ExtKeyUsage,
 	}
 	if _, err := pemCert.Verify(opts); err != nil {
+		fmt.Println(pemCert.NotBefore)
+		fmt.Println(pemCert.NotAfter)
 		return fmt.Errorf("failed to verify certificate: %s", err)
 	}
 	fmt.Printf("Verify certificate: Issuer: %s Subject: %s\n", pemCert.Issuer, pemCert.Subject)
@@ -401,10 +413,10 @@ func pathForKey(pkiPath, name string) string {
 	return filepath.Join(pkiPath, fmt.Sprintf("%s.key", name))
 }
 
-func pathForPublicKey(pkiPath, name string) string {
-	return filepath.Join(pkiPath, fmt.Sprintf("%s.pub", name))
-}
-
-func pathForCSR(pkiPath, name string) string {
-	return filepath.Join(pkiPath, fmt.Sprintf("%s.csr", name))
-}
+//func pathForPublicKey(pkiPath, name string) string {
+//	return filepath.Join(pkiPath, fmt.Sprintf("%s.pub", name))
+//}
+//
+//func pathForCSR(pkiPath, name string) string {
+//	return filepath.Join(pkiPath, fmt.Sprintf("%s.csr", name))
+//}
