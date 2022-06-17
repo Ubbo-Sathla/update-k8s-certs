@@ -162,7 +162,7 @@ func VerifyCertificate(caCert, pemCert *x509.Certificate) error {
 	opts := x509.VerifyOptions{
 		Roots:       roots,
 		KeyUsages:   []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
-		CurrentTime: pemCert.NotAfter.Add(-time.Second),
+		CurrentTime: pemCert.NotBefore.Add(+time.Second),
 		//KeyUsages: pemCert.ExtKeyUsage,
 	}
 	if _, err := pemCert.Verify(opts); err != nil {
