@@ -3,6 +3,7 @@ module github.com/Ubbo-Sathla/update-k8s-certs
 go 1.19
 
 require (
+	github.com/otiai10/copy v1.7.0
 	github.com/pkg/errors v0.9.1
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/client-go v0.25.2

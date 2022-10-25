@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	cp "github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -15,8 +16,8 @@ import (
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
 	"log"
-	"os"
 	"path/filepath"
+
 	"time"
 )
 
@@ -69,13 +70,15 @@ func main() {
 
 	conf := GetConf()
 	fmt.Println(conf)
-	newkubeConfigDir := fmt.Sprintf("%s_%s", conf.KubeConfigDir, time.Now().Format("20060102150405"))
+	newKubeConfigDir := fmt.Sprintf("%s_%s", conf.KubeConfigDir, time.Now().Format("20060102150405"))
+	backupKubeConfigDir := fmt.Sprintf("%s_%s", newKubeConfigDir, "backup")
 	pkiDir := fmt.Sprintf("%s/pki", conf.KubeConfigDir)
-	newPkiDir := fmt.Sprintf("%s/pki", newkubeConfigDir)
-	err := os.MkdirAll(newPkiDir, 0755)
+
+	err := cp.Copy(conf.KubeConfigDir, backupKubeConfigDir)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Backup kubernetes error: ", err)
 	}
+
 	for _, caSign := range conf.CaSign {
 		caCert, caKey, err := TryLoadCertAndKeyFromDisk(pkiDir, caSign.Name)
 		if err != nil {
@@ -91,7 +94,7 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			err = WriteCertAndKey(newPkiDir, sign.Name, newPemCert, newPemKey)
+			err = WriteCertAndKey(pkiDir, sign.Name, newPemCert, newPemKey)
 			if err != nil {
 				panic(err)
 			}
@@ -140,7 +143,7 @@ func main() {
 
 					}
 				}
-				err = clientcmd.WriteToFile(*c, fmt.Sprintf("%s/%s", newkubeConfigDir, filepath.Base(filename)))
+				err = clientcmd.WriteToFile(*c, fmt.Sprintf("%s/%s", conf.KubeConfigDir, filepath.Base(filename)))
 				if err != nil {
 					panic(err)
 				}
